@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bouncing Ball Animation</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas1" width="600" height="400"></canvas>
+
+  <script>
+    const canvas1 = document.getElementById('canvas1');
+    const ctx = canvas1.getContext('2d');
+
+    const ball_molecule = [
+      {
+        x: 50,
+        y: 50,
+        motionforX: 5,
+        motionforY: 3,
+        gravity: 0.2,
+        energy: 255
+      },
+      {
+        x: 400,
+        y: 200,
+        motionforX: -3,
+        motionforY: 7,
+        gravity: 0.3,
+        energy: 200
+      },
+      {
+        x: 300,
+        y: 300,
+        motionforX: 4,
+        motionforY: -5,
+        gravity: 0.1,
+        energy: 150
+      }
+    ];
+
+    function ball_animation() {
+      ctx.clearRect(0, 0, canvas1.width, canvas1.height);
+
+      for (let i = 0; i < ball_molecule.length; i++) {
+        let ball = ball_molecule[i];
+
+        // 绘制球
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
+        ctx.fillStyle = `rgb(${ball.energy}, 0, ${255 - ball.energy})`;
+        ctx.fill();
+        ctx.closePath();
+
+        // 更新球的位置
+        ball.motionforY += ball.gravity;
+        ball.x += ball.motionforX;
+        ball.y += ball.motionforY;
+
+        // 检测碰撞
+        for (let j = i + 1; j < ball_molecule.length; j++) {
+          let otherBall = ball_molecule[j];
+          let distance = Math.sqrt(
+            Math.pow(ball.x - otherBall.x, 2) + Math.pow(ball.y - otherBall.y, 2)
+          );
+          if (distance <= 40) {
+            // 两球已经碰撞
+            // 反转两球的运动方向
+            let tempX = ball.motionforX;
+            let tempY = ball.motionforY;
+            ball.motionforX = otherBall.motionforX;
+            ball.motionforY = otherBall.motionforY;
+            otherBall.motionforX = tempX;
+            otherBall.motionforY = tempY;
+
+            // 减少两球的能量
+            ball.energy -= 20;
+            otherBall.energy -= 20;
+          }
+        }
+
+        // 处理边界碰撞
+        if (ball.x < 20 || ball.x > canvas1.width - 20) {
+          ball.motionforX *= -1;
+          ball.energy -= 10;
+        }
+        if (ball.y < 20 || ball.y > canvas1.height - 20) {
+          ball.motionforY *= -1;
+          ball.energy -= 10;
+        }
+
+        // 如果能量耗尽,将球定在边界上
+        if (ball.energy <= 0) {
+          if (ball.x < 20) {
+            ball.x = 20;
+            ball.motionforX = 0;
+          } else if (ball.x > canvas1.width - 20) {
+            ball.x = canvas1.width - 20;
+            ball.motionforX = 0;
+          }
+          if (ball.y < 20) {
+            ball.y = 20;
+            ball.motionforY = 0;
+          } else if (ball.y > canvas1.height - 20) {
+            ball.y = canvas1.height - 20;
+            ball.motionforY = 0;
+          }
+        }
+      }
+
+      requestAnimationFrame(ball_animation);
+    }
+
+    ball_animation();
+  </script>
+</body>
+</html>

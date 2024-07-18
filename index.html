@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="style.css"/>
+    <title>land slide and rescue simulation v1.0.1</title>
+</head>
+<body>
+    <h1>land slide and rescue simulation</h1>
+    <canvas id ="canvas1"></canvas>
+    <script>
+        canvas1.height = 600;
+        canvas1.width =800;
+        var motion_x = 1;
+        var motion_y = 1;
+        const canvas = document.getElementById('canvas1');
+        const ctx = canvas.getContext('2d');
+        const soil_molecule = [];
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        function molecule_moving(){
+            const soil= {
+                gravity: 0.981,
+                energy :100,
+                x: getRandomInt(200,600),
+                y: getRandomInt(100,600),
+                motionforX : Math.random()^5,
+                motionforY : 0,
+            };
+            soil_molecule.push(soil);
+        }
+        for(i=0; i<100; i++){
+            molecule_moving();
+        }
+        function soil_animation (){
+            ctx.clearRect(0,0, canvas1.width, canvas1.height);
+
+            soil_molecule.forEach(soil =>{
+                
+                ctx.beginPath();
+                ctx.fillRect(soil.x, soil.y, 50, 50 ); 
+                ctx.fillStyle = "brown";
+                ctx.fill;
+                
+                soil.motionforY += soil.gravity; 
+                soil.x += soil.motionforX;
+                soil.y += soil.motionforY;
+                for (let j = i + 1; j < soil_molecule.length; j++) {
+                    let othersoil = soil_molecule[j];
+                    let distance = Math.sqrt(
+                    Math.pow(soil.x - othersoil.x, 2) + Math.pow(soil.y - othersoil.y, 2)
+                );
+                if (distance <= 40) {
+            // 两球已经碰撞
+            // 反转两球的运动方向
+                    let tempX = soil.motionforX;
+                    let tempY = soil.motionforY;
+                    soil.motionforX = othersoil.motionforX;
+                    soil.motionforY = othersoil.motionforY;
+                    othersoil.motionforX = tempX;
+                    othersoil.motionforY = tempY;
+
+            // 减少两球的能量
+                    soil.energy -= 20;
+                    othersoil.energy -= 20;
+          }
+        }
+
+    
+                if (soil.x - 40 < 0 || soil.x + 40 > canvas1.width) {
+                    soil.motionforX = -soil.motionforX;
+                    soil.energy -=10;
+                }
+                if (soil.y - 40 < 0 || soil.y + 40 > canvas1.height) {
+                    soil.motionforY = -soil.motionforY;
+                    soil.energy -=10;
+                }
+                if (soil.energy <= 0) {
+                    if (soil.x - 20 < 0) {
+                        soil.x -= 10;
+                        soil.motionforX = 0;
+                    } else if (soil.x + 20 > canvas1.width) {
+                        soil.x = canvas1.width - 20;
+                        soil.motionforX = 0;
+                    }
+                    if (soil.y - 20 < 0) {
+                        soil.y = 20;
+                        soil.motionforY = 0;
+                    } else if (soil.y + 20 > canvas1.height) {
+                        soil.y = canvas1.height - 20;
+                        soil.motionforY = 0;
+                    }
+                    if(soil.energy == 0){
+                        soil.motionforX = 0;
+                        soil.motionforY = 0;
+                        
+                    }
+                }
+                
+            });
+            requestAnimationFrame(soil_animation);
+        }
+        soil_animation();
+        
+        
+        
+        
+    </script>
+</body>
+</html>
